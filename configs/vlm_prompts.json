@@ -1,0 +1,88 @@
+{
+  "system": "You are given two overhead images of the same 1024 x 1024 pixel area. Image 1 was taken BEFORE a disaster and Image 2 AFTER it; the two images are aligned. One pixel is about 0.8 m on the ground, so the area is about 820 m across. Answer only from what is visible in the images. Each request asks one question.\n\nThe reference grades buildings with the xBD Joint Damage Scale, comparing Image 2 with Image 1 (it does not separate Minor from Major damage):\n- No damage: undisturbed; no sign of water, structural or roof damage, or burn marks.\n- Minor damage: partially burnt, water surrounding the building, volcanic flow nearby, roof elements missing, or visible cracks.\n- Major damage: partial wall or roof collapse, encroaching volcanic flow, or surrounded by water or mud.\n- Destroyed: scorched, completely collapsed, partially or completely covered with water or mud, or otherwise no longer present.\n\nIn the questions:\n- DESTROYED means graded Destroyed.\n- DAMAGED means graded Minor damage, Major damage or Destroyed, so every destroyed building is also damaged.\n- INTACT means graded No damage; a building with Minor or Major damage is not intact.\n- Buildings are the structures visible in Image 1, including buildings cut off by the image edge. A group of buildings whose footprints touch or almost touch (less than about one pixel apart) counts as ONE building, even if they are clearly separate houses; in dense neighbourhoods a whole row or block is often one building. A group gets the grade that covers most of its area. Pieces smaller than about 20 square pixels are ignored. Buildings the original annotators could not grade are not in the reference.\n- Distances and sizes are in pixels of these images.",
+  "variants": {
+    "direct": {
+      "name": "Direct count",
+      "instruction": "Reply with JSON only: {\"count\": <non-negative integer>, \"exists\": <true if count >= 1, else false>}.",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "count",
+          "exists"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "exists": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "listing": {
+      "name": "Entity listing",
+      "instruction": "First list each building or road segment that the question counts once, giving the approximate pixel position (x, y) of its centre (for a road segment, a point on it near its middle), with x from the left edge and y from the top edge (the images are aligned, so the position is the same in both). Then give the count, which must equal the number of items listed. Reply with JSON only: {\"items\": [{\"x\": <integer>, \"y\": <integer>}, ...], \"count\": <non-negative integer>, \"exists\": <true if count >= 1, else false>}.",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "count",
+          "exists"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "x",
+                "y"
+              ],
+              "properties": {
+                "x": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1023
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1023
+                }
+              }
+            }
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "exists": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "examples": {
+      "name": "Three examples",
+      "instruction": "Reply with JSON only: {\"count\": <non-negative integer>, \"exists\": <true if count >= 1, else false>}.",
+      "example_preamble": "Here are three labelled examples from other areas of the same dataset, each with the reference answer to this question: {question} Use them to calibrate what the reference counts.",
+      "example_rule": "Three VALIDATION scenes per question, fixed before any answer: among all of the question's validation scenes, ordered by the SHA-256 of the fixed salt 'v3_fewshot:' followed by the chip_id, the first whose reference count is 0, the first whose count is between 1 and 5, and the first whose count is above 5 (the highest-count scene if no scene is above 5). These scenes are excluded from the prompt-selection sample. Each example is sent as 'Example k, Image 1 (BEFORE):', image, 'Example k, Image 2 (AFTER):', image, 'Reference answer: <count>'.",
+      "target_label": "Scene to answer:"
+    }
+  },
+  "questions": {
+    "damaged_buildings": "How many buildings are DAMAGED (graded Minor damage, Major damage or Destroyed)?",
+    "destroyed_buildings": "How many buildings are DESTROYED?",
+    "blocked_roads": "How many road segments are BLOCKED? The reference traces the centre line of each road and cuts it into segments at every junction, that is wherever another road or a side branch at least about 30 pixels long (such as a driveway) joins, and at every road end, including where a road leaves the image. Length is measured along the centre line. Segments shorter than 180 pixels (about 18% of the image width) are dropped, not joined to a neighbour, so a short stretch between two nearby junctions does not count as a segment. A segment is BLOCKED if, at any point along it, the middle of the road is flooded or covered with debris in Image 2; water or debris only at the road's edge does not count.",
+    "damaged_buildings_without_clear_road": "How many DAMAGED buildings have no CLEAR road segment within 50 pixels (about 5% of the image width)? The reference traces the centre line of each road and cuts it into segments at every junction, that is wherever another road or a side branch at least about 30 pixels long (such as a driveway) joins, and at every road end, including where a road leaves the image. Length is measured along the centre line. Segments shorter than 180 pixels (about 18% of the image width) are dropped, not joined to a neighbour, so a short stretch between two nearby junctions does not count as a segment. A segment is CLEAR if the middle of the road is nowhere flooded or covered with debris in Image 2. Measure distance from the building's outline to the road's centre line (the middle of the road, not its edge); 50 pixels or less counts as within. A damaged building counts if every segment within 50 pixels is blocked, or if no segment is within 50 pixels.",
+    "destroyed_buildings_without_intact_neighbor": "How many DESTROYED buildings have no INTACT building within 50 pixels (about 5% of the image width)? Measure the shortest gap between the two buildings' outlines; a gap of exactly 50 pixels counts as within.",
+    "large_destroyed_buildings": "How many DESTROYED buildings have a footprint of at least 2,000 square pixels in Image 1, for example about 45 x 45 pixels, which is larger than a typical house?",
+    "destroyed_residential_buildings": "How many DESTROYED buildings are residential, judged from Image 1? Residential means houses, mobile homes, apartment buildings and other homes. Shops, offices, hotels, factories, warehouses, farm buildings, schools, churches, hospitals and other public buildings do not count.",
+    "destroyed_buildings_surrounded_by_vegetation": "How many DESTROYED buildings were surrounded by woody vegetation in Image 1? Look only at the area around each building: take the smallest rectangle around the building with sides parallel to the image edges, and extend it by 80 pixels on every side, or by three-quarters of the rectangle's longest side if that is larger; ignore any part beyond the image edge. A building counts as surrounded only if trees or shrubs dominate that area outside the rectangle; a few isolated trees, grass, lawns or crops alone do not count."
+  }
+}

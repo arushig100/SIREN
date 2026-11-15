@@ -1,0 +1,34 @@
+# Model training, image inference and the baselines (install the package first).
+# Tested with torch 2.7.1 + torchvision 0.22.1 and torch 2.9.1 + torchvision 0.24.1.
+
+# Core deep learning
+torch>=2.7.1,<2.10
+torchvision>=0.22.1,<0.25
+
+# Numerics / data
+numpy>=1.26,<2.4
+pandas>=1.5
+scipy>=1.11
+
+# Imaging
+pillow>=10.0
+scikit-image>=0.21
+opencv-python>=4.8
+
+# Geometry (query programs)
+shapely>=2.0
+
+# Satlas pretrained backbones (Aerial_SwinB_SI, etc.)
+satlaspretrain_models==0.3.1
+
+# OpenCLIP / SkyCLIP / RemoteCLIP baselines
+open_clip_torch==3.1.0
+
+# Pretrained-weight downloads used by timm and OpenCLIP
+huggingface_hub>=0.20.0
+
+# DINOv3 baseline
+timm==1.0.29
+
+# Classifier training metrics
+scikit-learn>=1.3

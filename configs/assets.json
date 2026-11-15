@@ -1,0 +1,31 @@
+{
+  "schema": "siren_assets",
+  "base": {
+    "path": "../assets/checkpoints/base.pth",
+    "sha256": "325bf37037106688212b2988f4bc6ace2f52bdc06143182d5a701f3965beac12"
+  },
+  "damaged": {
+    "path": "../assets/checkpoints/damaged.pth",
+    "sha256": "46dc48bc4cc5bf63a75f5037c54c885b2598755a5bb987aa0092d28a713c26ca"
+  },
+  "destroyed": {
+    "path": "../assets/checkpoints/destroyed.pth",
+    "sha256": "d5b143aae732e0c64273676967fa43bda01cc15a18dad2a011d0ee23de2bfcfa"
+  },
+  "split_csv": {
+    "path": "../assets/metadata/split.csv",
+    "sha256": "88102c95a392fe32c5e5485509c0f9e2751a97bef30e41d4511ae08200b1d3c7"
+  },
+  "unreadable_scenes": {
+    "path": "../assets/metadata/unreadable_scenes.json",
+    "sha256": "96defe429db5b42f3ab6dcc24a8ff3f282696ec0b45aa09a00f4a7a362d950a3"
+  },
+  "residential": {
+    "path": "../assets/checkpoints/residential.pth",
+    "sha256": "2abb6c59fcdf64b832d274ede9d3bce4f28ad93f8dc3e3a9cda63755de25ef32"
+  },
+  "vegetation": {
+    "path": "../assets/checkpoints/vegetation.pth",
+    "sha256": "7e9708b87386d6e5b366ca917d817294d907baee8de04fea832440267be9ef6f"
+  }
+}
